@@ -1,0 +1,12 @@
+/.gradle/
+build
+bin
+.classpath
+.project
+.settings
+*.log
+.idea
+/*.csv
+src/test/resources/*_prod.csv
+*.swp
+*~
