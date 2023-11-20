@@ -17,19 +17,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-/* TODO: Add these lines to build.gradle to add the runSavingsFixture target:
-task runSavingsFixture(type: JavaExec) {
-    group = "Execution"
-    description = "Run SavingsAccountTestFixture class"
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = "SavingsAccountTestFixture"
-}
- */
-
 public class SavingsAccountTestFixture {
     public static Logger logger = LogManager.getLogger(SavingsAccountTestFixture.class);
     // Note that we could also load the file from the classpath instead of hardcoding the pathname
-    static final String TEST_FILE = "src/test/resources/SavingsAccountTest.csv";
+    //static final String TEST_FILE = "src/test/resources/SavingsAccountTest.csv";
 
     record TestScenario(double initBalance,
                         double interestRate,
@@ -64,20 +55,30 @@ public class SavingsAccountTestFixture {
 
             // set up account with specified starting balance and interest rate
             // TODO: Add code to create account....
+            CheckingAccount ca = new CheckingAccount("test "+ testNum, -1, scenario.initBalance, 0, -1);
 
             // now process withdrawals, deposits
             // TODO: Add code to process withdrawals....
-
+            for (double withdrawalAmount : scenario.withdrawals) {
+                ca.withdraw(withdrawalAmount);
+            }
             // TODO: Add code to process deposits
-
+            for (double depositAmount : scenario.deposits) {
+                ca.deposit(depositAmount);
+            }
             // run month-end if desired and output register
             if (scenario.runMonthEndNTimes > 0) {
                 // TODO: Add code to run month-end....
+                ca.monthEnd();
+                for (RegisterEntry entry : ca.getRegisterEntries()) {
+                    logger.info("Register Entry {} -- {}: {}", entry.id(), entry.entryName(), entry.amount());
+
+                }
             }
 
             // make sure the balance is correct
             // TODO: add code to verify balance
-
+            assertThat("Test #" + testNum + ":" + scenario, ca.getBalance(), is(scenario.endBalance));
         }
     }
 
@@ -113,7 +114,8 @@ public class SavingsAccountTestFixture {
         // should probably validate length here
         double initialBalance = Double.parseDouble(scenarioValues[0]);
         // TODO: parse the rest of your fields
-        List<Double> wds = parseListOfAmounts(scenarioValues[2]);
+        List<Double> wds = parseListOfAmounts(scenarioValues[2]); 
+        
         // TODO: Replace these dummy values with _your_ field values to populate TestScenario object
         TestScenario scenario = new TestScenario(
                 initialBalance, 0.0, null, null, 0, 0.0
@@ -145,6 +147,7 @@ public class SavingsAccountTestFixture {
         if (testsFromFile) {
             // if populating with scenarios from a CSV file...
             // TODO: We could get the filename from the cmdline, e.g. "-f CheckingAccountScenarios.csv"
+            String TEST_FILE = args[2];
             System.out.println("\n\n****** FROM FILE ******\n");
             // TODO: get filename from cmdline and use instead of TEST_FILE constant
             List<String> scenarioStringsFromFile = Files.readAllLines(Paths.get(TEST_FILE));
@@ -158,6 +161,8 @@ public class SavingsAccountTestFixture {
             // Note the single-quotes above ^^^ because of the embedded spaces and the pipe symbol
             System.out.println("Command-line arguments passed in: " + java.util.Arrays.asList(args));
             // TODO: write the code to "parse" scenario into a suitable string
+            
+
             // TODO: get TestScenario object from above string and store to testScenarios static var
             runJunitTests();
         }
