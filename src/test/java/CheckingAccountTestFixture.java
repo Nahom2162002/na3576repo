@@ -19,15 +19,15 @@ import java.util.List;
 public class CheckingAccountTestFixture {
     public static Logger logger = LogManager.getLogger(CheckingAccountTestFixture.class);
     // We could read the file from classpath instead of hardcoding the pathname too
-    static final String TEST_FILE = "src/test/resources/CheckingAccountTest.csv";
+    //static final String TEST_FILE = "src/test/resources/CheckingAccountTest.csv";
 
-    record TestScenario(double initBalance,
-                        List<Double> checks,
-                        List<Double> withdrawals,
-                        List<Double> deposits,
-                        boolean runMonthEnd,
+    record TestScenario(double initBalance, 
+                        List<Double> checks, 
+                        List<Double> withdrawals, 
+                        List<Double> deposits, 
+                        boolean runMonthEnd, 
                         double endBalance
-    ) { }
+    ) {}
 
     private static List<TestScenario> testScenarios;
 
@@ -137,6 +137,7 @@ public class CheckingAccountTestFixture {
 
     public static void main(String [] args) throws IOException {
         System.out.println("START");
+        String TEST_FILE = args[2];
 
         // We can:
         // ... manually populate the list of scenarios we want to test...
@@ -144,7 +145,11 @@ public class CheckingAccountTestFixture {
         testScenarios = List.of(
                 new TestScenario(100, List.of(), List.of(), List.of(), false, 100),
                 new TestScenario(100, List.of(10d), List.of(), List.of(), false, 90),
-                new TestScenario(100, List.of(10.,20.), List.of(), List.of(10.), true, 80)
+                new TestScenario(100, List.of(10.,20.), List.of(), List.of(10.), true, 80),
+                new TestScenario(100, List.of(10., 20.), List.of(), List.of(10.), true, 80),
+                new TestScenario(100, List.of(20d), List.of(), List.of(20.), true, 70),
+                new TestScenario(100, List.of(30d), List.of(), List.of(10.), true, 90),
+                new TestScenario(100, List.of(30., 20.), List.of(), List.of(20.), true, 100)
                 );
         runJunitTests();
 
@@ -158,7 +163,11 @@ public class CheckingAccountTestFixture {
                 "0, , , 10|20, 30",
                 "100, , , , 100",
                 "100, 10, , , 90",
-                "100, 10|20, , 10, 80"
+                "100, 10|20, , 10, 80",
+                "100, 20, , 20, 70",
+                "100, 20|10, , , 80",
+                "100, 30, , 10, 90",
+                "100, 30|20, , 20, 100"
         );
         List<TestScenario> parsedScenarios = parseScenarioStrings(scenarioStrings);
         testScenarios = parsedScenarios;
