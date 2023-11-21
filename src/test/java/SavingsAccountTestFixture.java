@@ -16,6 +16,7 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class SavingsAccountTestFixture {
     public static Logger logger = LogManager.getLogger(SavingsAccountTestFixture.class);
@@ -34,6 +35,7 @@ public class SavingsAccountTestFixture {
 
     @Test
     public void runTestScenarios() throws Exception {
+        int entryAmount;
         if (testScenarios == null) {
             System.err.println("\n\n");
             System.err.println("************************************");
@@ -50,6 +52,7 @@ public class SavingsAccountTestFixture {
 
         // iterate over all test scenarios
         for (int testNum = 0; testNum < testScenarios.size(); testNum++) {
+            entryAmount = 0;
             TestScenario scenario = testScenarios.get(testNum);
             logger.info("**** Running test for {}", scenario);
 
@@ -72,13 +75,14 @@ public class SavingsAccountTestFixture {
                 ca.monthEnd();
                 for (RegisterEntry entry : ca.getRegisterEntries()) {
                     logger.info("Register Entry {} -- {}: {}", entry.id(), entry.entryName(), entry.amount());
-
+                    entryAmount++;
                 }
             }
 
             // make sure the balance is correct
             // TODO: add code to verify balance
             assertThat("Test #" + testNum + ":" + scenario, ca.getBalance(), is(scenario.endBalance));
+            assertEquals(entryAmount, ca.getRegisterEntries().size());
         }
     }
 
@@ -118,7 +122,7 @@ public class SavingsAccountTestFixture {
         
         // TODO: Replace these dummy values with _your_ field values to populate TestScenario object
         TestScenario scenario = new TestScenario(
-                initialBalance, 0.0, null, null, 0, 0.0
+                initialBalance, 10, null, null, 10, 90.0
         );
         return scenario;
     }
@@ -147,10 +151,10 @@ public class SavingsAccountTestFixture {
         if (testsFromFile) {
             // if populating with scenarios from a CSV file...
             // TODO: We could get the filename from the cmdline, e.g. "-f CheckingAccountScenarios.csv"
-            String TEST_FILE = args[2];
+            String filename = args[2];
             System.out.println("\n\n****** FROM FILE ******\n");
             // TODO: get filename from cmdline and use instead of TEST_FILE constant
-            List<String> scenarioStringsFromFile = Files.readAllLines(Paths.get(TEST_FILE));
+            List<String> scenarioStringsFromFile = Files.readAllLines(Paths.get(filename));
             // Note: toArray converts from a List to an array
             testScenarios = parseScenarioStrings(scenarioStringsFromFile);
             runJunitTests();
@@ -161,9 +165,10 @@ public class SavingsAccountTestFixture {
             // Note the single-quotes above ^^^ because of the embedded spaces and the pipe symbol
             System.out.println("Command-line arguments passed in: " + java.util.Arrays.asList(args));
             // TODO: write the code to "parse" scenario into a suitable string
-            
+            TestScenario scenario = parseScenarioString(args[1]);
 
             // TODO: get TestScenario object from above string and store to testScenarios static var
+            testScenarios = List.of(scenario);
             runJunitTests();
         }
         System.out.println("DONE");
